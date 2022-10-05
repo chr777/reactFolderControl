@@ -1,0 +1,9 @@
+
+.List {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: left;
+    justify-content:flex-start;
+  }
+  

@@ -1,0 +1,39 @@
+.App-header {
+  display: flex;
+  flex-direction: row;
+  padding: 10px 40px;
+  color: white;
+  background-color: rgb(107, 107, 124);
+}
+.Home {
+  height: 20px;
+  margin: 20px 10px; 
+}
+
+.Body {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+
+.Buttons {
+  min-width: 700px;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  max-height: fit-content;
+  align-items: center;
+  margin: 16px;
+}
+
+.Error {
+  position: fixed;
+  top: 25px;
+  left: 40%;
+  right: 30%;
+  z-index: 100;
+  min-width: 250px;
+  max-width: 350px;
+}
+
