@@ -14,6 +14,7 @@ export const dataInitial = [
         parentId: false,
         path: [0],
         children: false,
+        text: '',
     },
     {
         id: 2,
@@ -30,6 +31,7 @@ export const dataInitial = [
         path:[1,3],
         parentId: 1,
         children: false,
+        text: '',
     },
     {
         id: 5,
@@ -44,14 +46,16 @@ export const dataInitial = [
         name: 'file6',
         type: 'file',
         path:[1,5,6],
-        parentId: 5
+        parentId: 5,
+        text: '',
     },
     {
         id: 7,
         name: 'file7',
         type: 'file',
         path:[1,5,7],
-        parentId: 5
+        parentId: 5,
+        text: '',
     },
     {
         id: 9,
@@ -67,6 +71,7 @@ export const dataInitial = [
         type: 'file',
         path: [1,5,9,10],
         parentId: 9,
+        text: '',
     },
     {
         id: 11,

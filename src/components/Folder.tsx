@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from "react-router-dom";
-import { useAppDispatch } from '../redux/hooks';
-import {  trash, deleteItem } from '../redux/features/dataSlice';
+import { useAppDispatch, useAppSelector } from '../redux/hooks';
+import {  trash, deleteItem, restore, selectData } from '../redux/features/dataSlice';
+import { toggleError } from '../redux/features/errorSlice';
 
 import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
@@ -17,6 +18,8 @@ import RestorePageIcon from '@mui/icons-material/RestorePage';
 import DeleteIcon from '@mui/icons-material/Delete';
 import FolderIcon from '@mui/icons-material/Folder';
 import List from './List';
+import { IListItem } from '../App';
+import { findSameName } from '../util';
 
 import './listStyles.css';
 
@@ -25,7 +28,22 @@ function Folder ({ item, isTrashList } : any) {
   const navigate = useNavigate();
   const location = useLocation();
 
+  const ordinaryData = useAppSelector(selectData);
+
   const [open, setOpen] = useState(false);
+  const [isActive, setIsActive] = useState<boolean>(false)
+
+  useEffect(() => {
+    const path = location.pathname.split('/').filter(((item: string) => item.length > 0)).map((i: string) => +i);
+
+    if(path[path.length-1] === item.id){
+      setIsActive(true);
+    }
+    else{
+      setIsActive(false);
+    }
+  },[location.pathname])
+
 
   useEffect(() => {
     if(location.pathname === '/')
@@ -59,25 +77,41 @@ function Folder ({ item, isTrashList } : any) {
     isTrashList ? dispatch(deleteItem(item)) : dispatch(trash(item))
   };
 
+  const handleRestore= () => {
+    navigate('/trash');
+    const parentFromData = ordinaryData.find((i: IListItem) => i.id === item.parentId);
+    const sameName = findSameName(ordinaryData, item.name, item.parentId);
+    if(!parentFromData && item.parentId) {
+      dispatch(toggleError({isOpen: true, message: 'Parent cannot be found in data'}));
+      return;
+    }
+    if(sameName) {
+      dispatch(toggleError({isOpen: true, message: 'There is already folder/file with the same name in data'}));
+      return;
+    }
+    dispatch(restore(item));
+  };
+
     return (
       <>
-        <ListItem secondaryAction={
-          <>
-          {/* {isTrashList && <IconButton onClick={handleDelete} edge="end" aria-label="restore">
-            <DeleteIcon />
-          </IconButton>} */}
-          <IconButton onClick={handleDelete} edge="end" aria-label="delete">
-            <DeleteIcon />
-          </IconButton>
-          </>         
-        }>
+        <ListItem style={{backgroundColor: isActive ? '#ebf4fb' : '', borderRadius: '15px'}} 
+                          secondaryAction={
+                            <div>
+                              <IconButton onClick={handleDelete} edge="end" aria-label="delete">
+                                <DeleteIcon />
+                              </IconButton>
+                              {isTrashList && <IconButton onClick={handleRestore} edge="end" aria-label="restore">
+                                <RestorePageIcon />
+                              </IconButton>}
+                            </div>         
+                          }>
           <ListItemButton onClick={handleClick}>
             <ListItemIcon>
                 <FolderIcon />
             </ListItemIcon>
             <ListItemText primary={item.name} />
           </ListItemButton>
-         {item.children && (open ? <ExpandLess /> : <ExpandMore />)}
+         {item.children && (open ? <ExpandLess  style={{marginRight: isTrashList ? '24px' : '4px'}}/> : <ExpandMore style={{marginRight: isTrashList ? '24px' : '4px'}} />)}
         </ListItem>
         <Collapse style={{margin: 0, padding: 0}} in={open} timeout="auto" unmountOnExit>
           <div style={{marginLeft: '18px'}}>

@@ -1,5 +1,4 @@
 
-import React from 'react';
 import Box from '@mui/material/Box';
 
 import Folder from "./Folder";
@@ -19,11 +18,11 @@ function List ({ parentId, isTrashList } : any) {
 
   const data = isTrashList ? trashData : ordinaryData;
 
-  const list = parentId ? data.filter((item: IListItem) => item.parentId ===  parentId).map((item: IListItem) => item.type !== 'file' ?
+  const list = parentId ? data.filter((item: IListItem) => item.parentId === parentId).map((item: IListItem) => item.type !== 'file' ?
                  <Folder key={item.id} item={item} isTrashList={isTrashList}/>  : <File key={item.id} data={item} isTrashList={isTrashList}/>) :
                           data.filter((item: IListItem) => !item.parentId).map((item: IListItem) => item.type !== 'file' ?
                  <Folder key={item.id} item={item} isTrashList={isTrashList}/>  : <File key={item.id} data={item} isTrashList={isTrashList}/>);
-           
+      
     return (
       <div className="List">
         <Box sx={{ width: '100%', minWidth: 100, maxWidth: 700}}>

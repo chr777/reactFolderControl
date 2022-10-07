@@ -1,9 +1,12 @@
 import { configureStore } from '@reduxjs/toolkit'
 import dataReducer from './features/dataSlice'
+import errorReducer from './features/errorSlice'
+
 
 export const store = configureStore({
   reducer: {
     data: dataReducer,
+    error: errorReducer
   },
 })
 
