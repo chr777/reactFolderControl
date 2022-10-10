@@ -48,7 +48,7 @@ export const dataSlice = createSlice({
         state.trashData = state.trashData.filter((item: IListItem) => item.id !== action.payload.id);
 
        state.trashData = state.trashData.map((item: any) => {
-          if(item.id === action.payload.parentId)
+          if(item.id === action.payload.parentId && !(state.trashData.filter((i: any) => i.path.includes(item.id)).length > 1))
             return {...item, children: false}
           else return item;
         });
@@ -64,15 +64,21 @@ export const dataSlice = createSlice({
       state.trashData = state.trashData.filter((item: IListItem) => !(Array.isArray(item.path) && item.path.includes(action.payload.id)))
 
       state.data = state.data.map((item: any) => {
-        if(item.id === action.payload.trashParentId)
+        if(item.id === action.payload.trashParentId || (state.data.filter((i: any) => i.path.includes(item.id)).length > 1))
           return {...item, children: true}
         else return item;
       });         
     },
+    saveText: (state, action: PayloadAction<{id: number, text: string | undefined}>) => {
+      state.data = state.data.map((item: IListItem) => {
+          if(item.id === action.payload.id) return {...item, text: action.payload.text}
+          else return item
+      }) 
+  },
   },
 })
 
-export const { add, getData, trash, deleteItem, restore } = dataSlice.actions
+export const { add, getData, trash, deleteItem, restore, saveText } = dataSlice.actions
 
 export const selectData = (state: RootState) => state.data.data
 export const selectTrashData = (state: RootState) => state.data.trashData

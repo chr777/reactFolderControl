@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from './redux/hooks';
-import { getData, add, selectData } from './redux/features/dataSlice';
+import { getData, add, selectData, saveText } from './redux/features/dataSlice';
 import { selectError, toggleError } from './redux/features/errorSlice';
 
 import IconButton from '@mui/material/IconButton';
@@ -9,6 +9,7 @@ import HomeIcon from '@mui/icons-material/Home';
 import Alert from '@mui/material/Alert';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
+import Box from '@mui/material/Box';
 import List from "./components/List";
 import { findSameName, parentIsFile } from './util';
 import { dataInitial } from "./data";
@@ -34,7 +35,7 @@ function App() {
   const [folderName, setFolderName] = useState<string>('')
   const [fileName, setFileName] = useState<string>('')
   const [trashIsOpen, setOpenTrash] = useState<boolean>(false)
-  const [textArea, setTextArea] = useState<any>(null)
+  const [textArea, setTextArea] = useState<string | undefined>('')
 
   const error = useAppSelector(selectError);
   const data = useAppSelector(selectData);
@@ -45,14 +46,15 @@ function App() {
 
   useEffect(() => {
     const path = location.pathname.split('/').filter(((item: string) => item.length > 0)).map((i: string) => +i);
-    const foundItem = data.find((item: IListItem) => item.id === path[path.length-1] && item.type === 'file')?.id
-    if(foundItem && path.length > 0){
-      setTextArea(foundItem);
+    const foundItem = data.find((item: IListItem) => item.id === path[path.length-1] && item.type === 'file')
+    if(foundItem && path.length > 0 && !trashIsOpen){
+      setTextArea(foundItem.text);
+      
     }
     else{
-      setTextArea(false);
+      setTextArea(undefined);
     }
-  },[location.pathname])
+  },[location.pathname, data, trashIsOpen])
 
   const id = location.pathname.substring(location.pathname.lastIndexOf('/') + 1);
 
@@ -89,7 +91,8 @@ function App() {
             id: newPath[newPath.length-1],
             type: 'file',
             path: newPath, parentId: id ? +path[path.length-1] : false,
-            children: false
+            children: false,
+            text: ''
           };
 
     setFileName('');
@@ -114,6 +117,15 @@ function App() {
   const handleHome = () => {
     navigate('/')
     setOpenTrash(false)
+  }
+
+
+  const handleTextChange = (e: { target: { value: string } }) => {
+    setTextArea(e.target.value)
+  }
+
+  const handleSaveText = () => {
+    dispatch(saveText({id: +id, text: textArea}))
   }
 
   // console.log('data', data);
@@ -142,7 +154,26 @@ function App() {
                   {trashIsOpen ? 'Go Back' : 'Trash'}
                 </Button>
           </div>
-          {trashIsOpen ? <List parentId={false} isTrashList /> : <List parentId={false} isTrashList={false} />}
+          <div className='List'>
+            <div className='Area'>
+              {trashIsOpen ? <List parentId={false} isTrashList /> : <List parentId={false} isTrashList={false} />}
+            </div>
+           {textArea !== undefined && <div className='Area'>
+              <Box
+                component="form"
+                sx={{
+                  '& .MuiTextField-root': { mb: 1 },
+                }}
+                noValidate
+                autoComplete="off"
+              >
+                <div className="TextArea">
+                  <TextField label="Text" multiline  maxRows={150} minRows={10} value={textArea} onChange={handleTextChange} />
+                  <Button variant="outlined" onClick={handleSaveText}>Save Text</Button>
+                </div>
+              </Box>
+            </div>}
+          </div>
         </div>
         {error.isOpen && <div className='Error'>
                         <Alert onClose={() => dispatch(toggleError({isOpen: false, message: ''}))} variant="filled" severity="error">{error.message}</Alert>
